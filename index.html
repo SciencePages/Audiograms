@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      max-width: 700px;
+      max-width: 720px;
       margin: 40px auto;
       padding: 20px;
       background-color: #f4f6f8;
@@ -36,27 +36,55 @@
     }
     .card h2 {
       font-size: 1.25rem;
-      margin: 10px 0;
+      margin: 10px 0 15px 0;
       color: #222;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .custom-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    .custom-input input {
+      width: 90px;
+      padding: 6px 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
     }
     button {
       background-color: #0066cc;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 8px 14px;
       border-radius: 4px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: background-color 0.2s ease;
-      margin-top: 10px;
     }
     button:hover {
       background-color: #0052a3;
     }
-    audio {
-      width: 100%;
-      max-width: 400px;
-      margin-top: 12px;
+    button.secondary {
+      background-color: #e2e8f0;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    button.secondary:hover {
+      background-color: #cbd5e1;
     }
   </style>
 </head>
@@ -64,101 +92,87 @@
 
   <h1>Interactive Audiogram Exercises</h1>
 
-  <!-- Card A -->
-  <div class="card">
-    <img src="Audiogram%20a.png" alt="Audiogram A">
-    <h2>Audiogram A</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
+  <!-- Card Template Generator Script -->
+  <div id="audiogram-container"></div>
 
-  <!-- Card B -->
-  <div class="card">
-    <img src="Audiogram%20b.png" alt="Audiogram B">
-    <h2>Audiogram B</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card C -->
-  <div class="card">
-    <img src="Audiogram%20c.png" alt="Audiogram C">
-    <h2>Audiogram C</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card D -->
-  <div class="card">
-    <img src="Audiogram%20d.png" alt="Audiogram D">
-    <h2>Audiogram D</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card E -->
-  <div class="card">
-    <img src="Audiogram%20e.png" alt="Audiogram E">
-    <h2>Audiogram E</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card F -->
-  <div class="card">
-    <img src="Audiogram%20f.png" alt="Audiogram F">
-    <h2>Audiogram F</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card G -->
-  <div class="card">
-    <img src="Audiogram%20g.png" alt="Audiogram G">
-    <h2>Audiogram G</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card H -->
-  <div class="card">
-    <img src="Audiogram%20h.png" alt="Audiogram H">
-    <h2>Audiogram H</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card I -->
-  <div class="card">
-    <img src="Audiogram%20i.png" alt="Audiogram I">
-    <h2>Audiogram I</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Card J -->
-  <div class="card">
-    <img src="Audiogram%20j.png" alt="Audiogram J">
-    <h2>Audiogram J</h2>
-    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
-  </div>
-
-  <!-- Inline Web Audio Synthesizer -->
   <script>
+    // List of audiograms from A to J
+    const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+    const container = document.getElementById('audiogram-container');
+
+    // Build each audiogram card dynamically
+    letters.forEach(letter => {
+      const upper = letter.toUpperCase();
+      const inputId = `freq-${letter}`;
+      
+      const cardHtml = `
+        <div class="card">
+          <img src="Audiogram%20${letter}.png" alt="Audiogram ${upper}">
+          <h2>Audiogram ${upper}</h2>
+          
+          <div class="controls">
+            <div class="custom-input">
+              <label for="${inputId}">Tone Frequency:</label>
+              <input type="number" id="${inputId}" value="1000" min="125" max="10000" step="125"> Hz
+              <button onclick="playCustomTone('${inputId}')">Play Custom</button>
+            </div>
+
+            <div class="btn-group">
+              <button class="secondary" onclick="playPreset('${inputId}', 250)">250 Hz</button>
+              <button class="secondary" onclick="playPreset('${inputId}', 500)">500 Hz</button>
+              <button class="secondary" onclick="playPreset('${inputId}', 1000)">1000 Hz</button>
+              <button class="secondary" onclick="playPreset('${inputId}', 2000)">2000 Hz</button>
+              <button class="secondary" onclick="playPreset('${inputId}', 4000)">4000 Hz</button>
+              <button class="secondary" onclick="playPreset('${inputId}', 8000)">8000 Hz</button>
+            </div>
+          </div>
+        </div>
+      `;
+      container.innerHTML += cardHtml;
+    });
+
+    // Web Audio Synthesizer Logic
     let audioCtx = null;
 
-    function playTestTone(frequency = 1000, duration = 1) {
+    function getAudioContext() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, duration = 1) {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
       
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
       
-      // Smooth start and stop fade to avoid clicking sound
-      gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      // Smooth fade envelope to avoid audio clicks
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
       
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(ctx.destination);
       
       osc.start();
-      osc.stop(audioCtx.currentTime + duration);
+      osc.stop(ctx.currentTime + duration);
+    }
+
+    function playCustomTone(inputId) {
+      const freqInput = document.getElementById(inputId);
+      const freq = parseFloat(freqInput.value) || 1000;
+      playTone(freq);
+    }
+
+    function playPreset(inputId, freq) {
+      document.getElementById(inputId).value = freq;
+      playTone(freq);
     }
   </script>
 
