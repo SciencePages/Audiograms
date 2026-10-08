@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Audiogram Exercises</title>
+  <title>Hearing Loss Simulation Exercises</title>
   
   <style>
     body {
@@ -17,6 +17,11 @@
     h1 {
       text-align: center;
       color: #111;
+      margin-bottom: 5px;
+    }
+    p.subtitle {
+      text-align: center;
+      color: #666;
       margin-bottom: 25px;
     }
     .card {
@@ -84,26 +89,28 @@
 </head>
 <body>
 
-  <h1>Interactive Audiogram Exercises</h1>
+  <h1>Hearing Loss Simulation</h1>
+  <p class="subtitle">Experience how audio is perceived based on each audiogram's threshold curve.</p>
 
   <div id="audiogram-container"></div>
 
   <script>
     /* 
       ===================================================================
-      AUDIOGRAM DECIBEL (dB HL) THRESHOLD PROFILES
-      Update the dB values below for each frequency (250Hz - 8000Hz) 
-      to match the exact threshold lines on your graphic images!
+      AUDIOGRAM DECIBEL THRESHOLDS (dB HL)
+      0-20 dB = Normal (Full Volume)
+      40-60 dB = Moderate Loss (Quiet Volume)
+      70+ dB = Severe Loss (Inaudible / Barely Audible)
       ===================================================================
     */
     const audiogramProfiles = {
-      a: { 250: 10, 500: 10, 1000: 15, 2000: 15, 4000: 20, 8000: 20 }, // Normal hearing profile
-      b: { 250: 15, 500: 20, 1000: 30, 2000: 45, 4000: 60, 8000: 75 }, // High-frequency loss
-      c: { 250: 50, 500: 50, 1000: 55, 2000: 50, 4000: 50, 8000: 45 }, // Flat loss profile
-      d: { 250: 10, 500: 15, 1000: 20, 2000: 55, 4000: 65, 8000: 25 }, // 4kHz notch loss
-      e: { 250: 40, 500: 35, 1000: 30, 2000: 20, 4000: 15, 8000: 10 }, // Reverse slope profile
+      a: { 250: 10, 500: 10, 1000: 15, 2000: 15, 4000: 20, 8000: 20 }, // Normal hearing
+      b: { 250: 15, 500: 20, 1000: 30, 2000: 45, 4000: 60, 8000: 75 }, // High-frequency loss (Highs attenuated)
+      c: { 250: 65, 500: 55, 1000: 40, 2000: 20, 4000: 15, 8000: 10 }, // Low-frequency loss (Lows attenuated)
+      d: { 250: 10, 500: 15, 1000: 20, 2000: 65, 4000: 70, 8000: 20 }, // 4kHz notch
+      e: { 250: 50, 500: 45, 1000: 30, 2000: 20, 4000: 15, 8000: 10 },
       f: { 250: 20, 500: 25, 1000: 35, 2000: 50, 4000: 70, 8000: 85 },
-      g: { 250: 60, 500: 65, 1000: 70, 2000: 75, 4000: 80, 8000: 85 },
+      g: { 250: 60, 500: 65, 1000: 70, 2000: 75, 4000: 80, 8000: 85 }, // Flat severe loss
       h: { 250: 15, 500: 15, 1000: 20, 2000: 30, 4000: 50, 8000: 70 },
       i: { 250: 30, 500: 35, 1000: 40, 2000: 45, 4000: 50, 8000: 55 },
       j: { 250: 10, 500: 15, 1000: 25, 2000: 40, 4000: 75, 8000: 90 }
@@ -112,7 +119,7 @@
     const frequencies = [250, 500, 1000, 2000, 4000, 8000];
     const container = document.getElementById('audiogram-container');
 
-    // Dynamically build the UI cards
+    // Dynamically build UI cards
     Object.keys(audiogramProfiles).forEach(letter => {
       const upper = letter.toUpperCase();
       
@@ -122,11 +129,11 @@
           <h2>Audiogram ${upper}</h2>
           
           <div class="controls">
-            <button class="sweep-btn" onclick="playFullSweep('${letter}')">▶ Play Full Threshold Sweep (250Hz - 8000Hz)</button>
+            <button class="sweep-btn" onclick="playSimulatedSweep('${letter}')">▶ Listen to Simulated Perception Sweep</button>
             
             <div class="btn-group">
               ${frequencies.map(f => `
-                <button class="secondary" onclick="playCardTone('${letter}',${f})">
+                <button class="secondary" onclick="playSimulatedTone('${letter}',${f})">
                   ${f} Hz (${audiogramProfiles[letter][f]} dB)
                 </button>
               `).join('')}
@@ -150,54 +157,10 @@
       return audioCtx;
     }
 
-    // Converts dB HL (0 dB to 100 dB) to Web Audio gain volume (0.0 to 0.4 max)
-    function dbToGain(db) {
-      const minDb = 0;
-      const maxDb = 100;
-      const normalized = Math.max(0, Math.min(1, (db - minDb) / (maxDb - minDb)));
-      // Exponential curve for logarithmic human hearing perception
-      return Math.pow(normalized, 2) * 0.35 + 0.001;
-    }
-
-    function playToneAtDb(freq, dbHL, duration = 0.8, startTime = 0) {
-      const ctx = getAudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      const targetGain = dbToGain(dbHL);
-      const now = startTime || ctx.currentTime;
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now);
-      
-      // Smooth attack and release envelope
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(targetGain, now + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      osc.start(now);
-      osc.stop(now + duration);
-    }
-
-    function playCardTone(letter, freq) {
-      const dbHL = audiogramProfiles[letter][freq];
-      playToneAtDb(freq, dbHL);
-    }
-
-    function playFullSweep(letter) {
-      const ctx = getAudioContext();
-      let startTime = ctx.currentTime;
-      
-      frequencies.forEach(freq => {
-        const dbHL = audiogramProfiles[letter][freq];
-        playToneAtDb(freq, dbHL, 0.7, startTime);
-        startTime += 0.85; // Gap between tones
-      });
-    }
-  </script>
-
-</body>
-</html>
+    /* 
+      SIMULATED PERCEPTION GAIN CALCULATION
+      Calculates perceived loudness: 0 dB loss = 100% volume, 90+ dB loss = 0% volume.
+    */
+    function dbToSimulatedGain(dbHL) {
+      const maxLoss = 90; // dB HL threshold where sound becomes completely inaudible
+      const remaining
