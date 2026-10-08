@@ -3,94 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audiograms</title>
+  <title>Interactive Audiogram Exercises</title>
+  
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
       padding: 20px;
-      background-color: #f8f9fa;
+      background-color: #f4f6f8;
       color: #333;
     }
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      color: #111;
+      margin-bottom: 25px;
     }
-    .image-container {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+    .card {
+      background: white;
+      padding: 24px;
       border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
       text-align: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-    .image-container img {
+    .card img {
       max-width: 100%;
       height: auto;
-      border-radius: 4px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 15px;
     }
-    .image-container p {
+    .card h2 {
+      font-size: 1.25rem;
+      margin: 10px 0;
+      color: #222;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
       margin-top: 10px;
-      font-weight: 600;
-      color: #555;
+    }
+    button:hover {
+      background-color: #0052a3;
+    }
+    audio {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Audiogram Report</h1>
+  <h1>Interactive Audiogram Exercises</h1>
 
-  <div class="image-container">
+  <!-- Card A -->
+  <div class="card">
     <img src="Audiogram%20a.png" alt="Audiogram A">
-    <p>Audiogram A</p>
+    <h2>Audiogram A</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card B -->
+  <div class="card">
     <img src="Audiogram%20b.png" alt="Audiogram B">
-    <p>Audiogram B</p>
+    <h2>Audiogram B</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card C -->
+  <div class="card">
     <img src="Audiogram%20c.png" alt="Audiogram C">
-    <p>Audiogram C</p>
+    <h2>Audiogram C</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card D -->
+  <div class="card">
     <img src="Audiogram%20d.png" alt="Audiogram D">
-    <p>Audiogram D</p>
+    <h2>Audiogram D</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card E -->
+  <div class="card">
     <img src="Audiogram%20e.png" alt="Audiogram E">
-    <p>Audiogram E</p>
+    <h2>Audiogram E</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card F -->
+  <div class="card">
     <img src="Audiogram%20f.png" alt="Audiogram F">
-    <p>Audiogram F</p>
+    <h2>Audiogram F</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card G -->
+  <div class="card">
     <img src="Audiogram%20g.png" alt="Audiogram G">
-    <p>Audiogram G</p>
+    <h2>Audiogram G</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card H -->
+  <div class="card">
     <img src="Audiogram%20h.png" alt="Audiogram H">
-    <p>Audiogram H</p>
+    <h2>Audiogram H</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card I -->
+  <div class="card">
     <img src="Audiogram%20i.png" alt="Audiogram I">
-    <p>Audiogram I</p>
+    <h2>Audiogram I</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
 
-  <div class="image-container">
+  <!-- Card J -->
+  <div class="card">
     <img src="Audiogram%20j.png" alt="Audiogram J">
-    <p>Audiogram J</p>
+    <h2>Audiogram J</h2>
+    <button onclick="playTestTone(1000, 1)">Play 1000Hz Tone</button>
   </div>
+
+  <!-- Inline Web Audio Synthesizer -->
+  <script>
+    let audioCtx = null;
+
+    function playTestTone(frequency = 1000, duration = 1) {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      
+      // Smooth start and stop fade to avoid clicking sound
+      gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+  </script>
 
 </body>
 </html>
