@@ -1,166 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hearing Loss Simulation Exercises</title>
-  
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 720px;
-      margin: 40px auto;
-      padding: 20px;
-      background-color: #f4f6f8;
-      color: #333;
-    }
-    h1 {
-      text-align: center;
-      color: #111;
-      margin-bottom: 5px;
-    }
-    p.subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 25px;
-    }
-    .card {
-      background: white;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      margin-bottom: 25px;
-      text-align: center;
-    }
-    .card img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 6px;
-      border: 1px solid #e0e0e0;
-      margin-bottom: 15px;
-    }
-    .card h2 {
-      font-size: 1.25rem;
-      margin: 10px 0 15px 0;
-      color: #222;
-    }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 6px;
-    }
-    button {
-      background-color: #0066cc;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 4px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-    button:hover {
-      background-color: #0052a3;
-    }
-    button.sweep-btn {
-      background-color: #2e7d32;
-      font-weight: 600;
-      padding: 10px 18px;
-    }
-    button.sweep-btn:hover {
-      background-color: #1b5e20;
-    }
-    button.secondary {
-      background-color: #e2e8f0;
-      color: #1e293b;
-      font-weight: 500;
-    }
-    button.secondary:hover {
-      background-color: #cbd5e1;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearing Loss Simulation Exercises</title>
+
+<style>
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f4f6f8;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.card img {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+button {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+}
+
+.sweep-btn {
+    background: #2e7d32;
+    color: white;
+    font-weight: 700;
+}
+
+.sweep-btn:hover {
+    background: #1b5e20;
+}
+
+.secondary {
+    background: #e2e8f0;
+    color: #1f2937;
+}
+
+.secondary:hover {
+    background: #cbd5e1;
+}
+
+.status {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>Hearing Loss Simulation</h1>
-  <p class="subtitle">Experience how audio is perceived based on each audiogram's threshold curve.</p>
+<h1>Hearing Loss Simulation</h1>
 
-  <div id="audiogram-container"></div>
+<p class="subtitle">
+Experience how different hearing-loss patterns affect perceived loudness across frequencies.
+</p>
 
-  <script>
-    /* 
-      ===================================================================
-      AUDIOGRAM DECIBEL THRESHOLDS (dB HL)
-      0-20 dB = Normal (Full Volume)
-      40-60 dB = Moderate Loss (Quiet Volume)
-      70+ dB = Severe Loss (Inaudible / Barely Audible)
-      ===================================================================
-    */
-    const audiogramProfiles = {
-      a: { 250: 10, 500: 10, 1000: 15, 2000: 15, 4000: 20, 8000: 20 }, // Normal hearing
-      b: { 250: 15, 500: 20, 1000: 30, 2000: 45, 4000: 60, 8000: 75 }, // High-frequency loss (Highs attenuated)
-      c: { 250: 65, 500: 55, 1000: 40, 2000: 20, 4000: 15, 8000: 10 }, // Low-frequency loss (Lows attenuated)
-      d: { 250: 10, 500: 15, 1000: 20, 2000: 65, 4000: 70, 8000: 20 }, // 4kHz notch
-      e: { 250: 50, 500: 45, 1000: 30, 2000: 20, 4000: 15, 8000: 10 },
-      f: { 250: 20, 500: 25, 1000: 35, 2000: 50, 4000: 70, 8000: 85 },
-      g: { 250: 60, 500: 65, 1000: 70, 2000: 75, 4000: 80, 8000: 85 }, // Flat severe loss
-      h: { 250: 15, 500: 15, 1000: 20, 2000: 30, 4000: 50, 8000: 70 },
-      i: { 250: 30, 500: 35, 1000: 40, 2000: 45, 4000: 50, 8000: 55 },
-      j: { 250: 10, 500: 15, 1000: 25, 2000: 40, 4000: 75, 8000: 90 }
-    };
+<div id="audiogram-container"></div>
 
-    const frequencies = [250, 500, 1000, 2000, 4000, 8000];
-    const container = document.getElementById('audiogram-container');
+<script>
 
-    // Dynamically build UI cards
-    Object.keys(audiogramProfiles).forEach(letter => {
-      const upper = letter.toUpperCase();
-      
-      const cardHtml = `
-        <div class="card">
-          <img src="Audiogram%20${letter}.png" alt="Audiogram ${upper}">
-          <h2>Audiogram ${upper}</h2>
-          
-          <div class="controls">
-            <button class="sweep-btn" onclick="playSimulatedSweep('${letter}')">▶ Listen to Simulated Perception Sweep</button>
-            
-            <div class="btn-group">
-              ${frequencies.map(f => `
-                <button class="secondary" onclick="playSimulatedTone('${letter}',${f})">
-                  ${f} Hz (${audiogramProfiles[letter][f]} dB)
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-      container.innerHTML += cardHtml;
-    });
+const audiogramProfiles = {
 
-    // Web Audio API Synthesizer
-    let audioCtx = null;
+    a: {250:10, 500:10, 1000:15, 2000:15, 4000:20, 8000:20},
 
-    function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
+    b: {250:15, 500:20, 1000:30, 2000:45, 4000:60, 8000:75},
 
-    /* 
-      SIMULATED PERCEPTION GAIN CALCULATION
-      Calculates perceived loudness: 0 dB loss = 100% volume, 90+ dB loss = 0% volume.
-    */
-    function dbToSimulatedGain(dbHL) {
-      const maxLoss = 90; // dB HL threshold where sound becomes completely inaudible
-      const remaining
+    c: {250:65, 500:55, 1000:40, 2000:20, 4000:15, 8000:10},
+
+    d: {250:10, 500:15, 1000:20, 2000:65, 4000:70, 8000:20},
+
+    e: {250:50, 500:45, 1000:30, 2000:20, 4000:15, 8000:10},
+
+    f: {250:20, 500:25, 1000:35, 2000:50, 4000:70, 8000:85},
+
+    g
